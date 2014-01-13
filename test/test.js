@@ -9,7 +9,7 @@ var fs = require('fs'),
 	Digitize = require('./../lib/digitize');
 
 
-var file_valid = './resources/test_files/basic-tiff.tif',
+var file_valid = './resources/test_files/basic.tif',
 	file_empty = './resources/test_files/empty.tif',
 	file_invalid = '/not/a/real/filepath.tif';
 
