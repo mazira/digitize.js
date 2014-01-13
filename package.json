@@ -1,0 +1,38 @@
+{
+  "name": "digitize.js",
+  "description": "Client for Digitize OCR service (https://digitize.io)",
+  "keywords": [
+    "ocr",
+    "digitize",
+    "optical character recognition"
+  ],
+  "version": "0.1.0",
+  "author": {
+    "name": "Daniel Short",
+    "email": "daniel.short@mazira.com"
+  },
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/mazira/digitize.js"
+  },
+  "bugs": {
+    "url": "https://github.com/mazira/digitize.js/issues"
+  },
+  "main": "./lib/digitize.js",
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "engines": {
+    "node": ">= 0.5.x"
+  },
+  "dependencies": {
+    "async": ">= 0.2.9",
+    "mime": ">= 1.2.11"
+  },
+  "devDependencies": {
+    "mocha": "1.17.0",
+    "should": "2.1.1",
+    "nock": "0.27.1"
+  }
+}
