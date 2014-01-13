@@ -1,6 +1,10 @@
 #digitize.js
 Digitize.js utilizes the digitize.io API service to OCR files. For more information, visit [https://digitize.io/](https://digitize.io/).
 
+##Install
+    $ git clone https://github.com/mazira/digitize.js.git
+
+
 ##Usage
 A quick example
 
@@ -65,7 +69,7 @@ Other HTTP headers can be included, although they are not necessary.
 Digitize.ocr(source, options, function(err, sessionId) {
 
 
-);
+});
 
 + -source: Either a file or node.js stream
 + -options: Only needed when source is a stream
