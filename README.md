@@ -69,7 +69,7 @@ The Digitize default options:
 ### #ocr(source, [options], callback)
 
 - source - Either a file or node.js stream
-- options - HTTPS headers used to send the file to the service. When using streams, only the 'content-type' header is necessary. For files, no options are needed.
+- options - HTTPS headers used to send the file to the service. When using streams, only the content-type header is necessary. For files, no options are needed.
 - callback(err, sessionId) - returns a sessionId for a valid request
 
 Sends a file to the service to be OCRed. The service then returns a sessionId to identify the request.
@@ -77,7 +77,7 @@ Sends a file to the service to be OCRed. The service then returns a sessionId to
 
 - sessionId - The sessionId used to identify the request (returned by the .ocr method)
 call
-- callback(err, status, content) - returns the OCRed text. `status` indicates the status of the OCR processing ('In Progress', 'Success', or 'Failed'). `content` contains the OCRed text if the `status` is 'Success' (it is otherwise undefined). 
+- callback(err, status, content) - returns the OCRed text. `status` indicates the status of the OCR processing (_In Progress_, _Success_, or _Failed_). `content` contains the OCRed text if the `status` is _Success_ (it is otherwise undefined). 
 
 Uses a sessionId to query the service for the status of a request, and returns the OCRed text when the processing is complete.
 
