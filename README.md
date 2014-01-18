@@ -2,7 +2,7 @@
 Digitize.js utilizes the digitize.io API service to OCR files. For more information, visit [https://digitize.io/](https://digitize.io/).
 
 ##Install
-	$ git clone https://github.com/mazira/digitize.js.git
+	$ npm install git://github.com/mazira/digitize.js#master
 
 
 ##Usage
