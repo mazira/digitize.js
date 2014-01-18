@@ -29,10 +29,163 @@ var options_good = {
 
 describe('Digitize', function() {
 
+	describe('Constructor', function () {
+
+		it('should have default options', function () {
+			myDigitize.should.be.an['instanceof'](Digitize);
+
+			myDigitize.options.apiKey.should.equal('123456789');
+			myDigitize.options.verbose.should.equal(false);
+		});
+
+		it('should allow overriding of default options', function () {
+			var newDigitize = new Digitize({
+				apiKey: '123',
+				verbose: true
+			});
+
+			newDigitize.options.verbose.should.equal(true);
+		});
+	});
+
+	describe('#fullOCR', function() {
+
+		it('should return the OCRed content for a valid file', function(cb) {
+			var scope = nock('https://digitize.io')
+				.post('/api/ocr?apiKey=123456789')
+				.reply(202, {
+					message: 'Your request has been queued',
+					sessionId: '1111aaaa2222bbbb'
+				})
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
+				.reply(200, {
+					'status': "Success",
+					'content': "OCRed text"
+				});
+
+			myDigitize.fullOCR(file_valid, function(err, content) {
+				scope.done();
+
+				should.not.exist(err);
+				should.exist(content);
+
+				content.should.equal('OCRed text');
+
+				cb();
+			});
+		});
+
+		it('should return the OCRed content for a valid stream', function(cb) {
+			var scope = nock('https://digitize.io')
+				.post('/api/ocr?apiKey=123456789')
+				.reply(202, {
+					message: 'Your request has been queued',
+					sessionId: '1111aaaa2222bbbb'
+				})
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
+				.reply(200, {
+					'status': "Success",
+					'content': "OCRed text"
+				});
+
+			var stream_valid = fs.createReadStream(file_valid);
+
+			myDigitize.fullOCR(stream_valid, options_good, function(err, content) {
+				scope.done();
+
+				should.not.exist(err);
+				should.exist(content);
+
+				content.should.equal('OCRed text');
+
+				cb();
+			});
+		});
+
+		it('should return an error when the interval is shorter than the frequency', function(cb) {
+			var scope = nock('https://digitize.io')
+				.post('/api/ocr?apiKey=123456789')
+				.reply(202, {
+					message: 'Your request has been queued',
+					sessionId: '1111aaaa2222bbbb'
+				});
+
+			var fastOptions = {
+				frequency: 10000,
+				interval: 1
+			};
+
+			myDigitize.fullOCR(file_valid, fastOptions, function(err, content) {
+				scope.done();
+
+				should.exist(err);
+
+				err.message.should.equal('Task frequency must be less than or equal to interval');
+
+				cb();
+			});
+		});
+
+		it('should return an error when the interval has passed', function(cb) {
+			var scope = nock('https://digitize.io')
+				.post('/api/ocr?apiKey=123456789')
+				.reply(202, {
+					message: 'Your request has been queued',
+					sessionId: '1111aaaa2222bbbb'
+				})
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
+				.reply(200, {
+					'status': "In Progress"
+				})
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
+				.reply(200, {
+					'status': "In Progress"
+				});
+
+			var fastOptions = {
+				frequency: 500,
+				interval: 1000
+			};
+
+			myDigitize.fullOCR(file_valid, fastOptions, function(err, content) {
+				scope.done();
+
+				should.exist(err);
+
+				err.message.should.equal('OCRing was not successful');
+
+				cb();
+			});
+		});
+
+		it('should return an error when frequency or interval are not numbers', function(cb) {
+			var scope = nock('https://digitize.io')
+				.post('/api/ocr?apiKey=123456789')
+				.reply(202, {
+					message: 'Your request has been queued',
+					sessionId: '1111aaaa2222bbbb'
+				});
+
+			var fastOptions = {
+				frequency: 'K. 527',
+				interval: 'Pyotr'
+			};
+
+			myDigitize.fullOCR(file_valid, fastOptions, function(err, content) {
+				scope.done();
+
+				should.exist(err);
+
+				err.message.should.equal('Task frequency and interval must be numbers in milliseconds');
+
+				cb();
+			});
+		});
+	});
+
 	describe('#ocr', function() {
 
 		it('should return a sessionId for a valid file and apiKey', function(cb) {
-
 			var scope = nock('https://digitize.io')
 				.post('/api/ocr?apiKey=123456789')
 				.reply(202, {
@@ -53,7 +206,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for a nonexistent file', function(cb) {
-
 			myDigitize.ocr(file_invalid, function(err) {
 				should.exist(err);
 
@@ -65,7 +217,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for an empty file', function(cb) {
-
 			myDigitize.ocr(file_empty, function(err) {
 				should.exist(err);
 
@@ -77,7 +228,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return a sessionId for a valid stream, options, and apiKey', function(cb) {
-
 			var scope = nock('https://digitize.io')
 				.post('/api/ocr?apiKey=123456789')
 				.reply(202, {
@@ -101,7 +251,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for a valid stream and apiKey, and no options', function(cb) {
-
 			var stream_valid = fs.createReadStream(file_valid);
 
 			myDigitize.ocr(stream_valid, function(err, sessionId) {
@@ -116,7 +265,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for an invalid stream', function(cb) {
-
 			var stream_invalid = fs.createWriteStream(file_empty);
 
 			myDigitize.ocr(stream_invalid, options_good, function(err) {
@@ -130,7 +278,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for an invalid apiKey', function(cb) {
-
 			var scope = nock('https://digitize.io')
 				.post('/api/ocr?apiKey=987654321')
 				.reply(403, {
@@ -154,7 +301,6 @@ describe('Digitize', function() {
 	describe('#fetch', function() {
 
 		it('should return the OCRed content for a valid sessionId', function(cb) {
-
 			var scope = nock('https://digitize.io')
 				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
 				.reply(200, {
@@ -177,7 +323,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for an invalid sessionId', function(cb) {
-
 			var scope = nock('https://digitize.io')
 				.get('/api/ocr?apiKey=123456789&sessionId=1')
 				.reply(404, {
@@ -198,7 +343,6 @@ describe('Digitize', function() {
 		});
 
 		it('should return an error for no sessionId', function(cb) {
-
 			myDigitize.fetch(function(err) {
 				should.exist(err);
 
