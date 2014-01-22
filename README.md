@@ -21,14 +21,15 @@ var stream = fs.createReadStream('./file.tif');
 var options = {
 	headers: {
 		'content-type': 'image/tiff'
-	}
+	},
+	format: 'hocr'	//service will return hOCR output. Unless specified, the OCRed text is returned
 };
 
 myDigitize.fullOCR(stream, options, function(err, content) {
 	if (err)
 		console.log(err);
 	else
-		console.log(content);
+		console.log(content);	
 });
 `````
 
@@ -56,10 +57,12 @@ myDigitize.ocr(stream, options, function(err, sessionId) {
 		console.log(err);
 	else {
 		myDigitize.fetch(sessionId, function(err, status, content) {
-			if(err) console.log(err);
-
-			console.log(status);
-			console.log(content);
+			if(err) 
+				console.log(err);
+			else {
+				console.log(status);
+				console.log(content); 
+			}
 		});
 	}
 );
@@ -87,13 +90,14 @@ The Digitize default options:
 - options - Various options
   - headers - HTTPS headers used to send the file to the service. When using streams, only the content-type header is necessary. For files, headers are not needed. Additional valid HTTPS headers can also be specified. 
     - content-type - MIME type (e.g. 'image/tiff')
-  - frequency - The frequency with which to query the service for the status of the OCR processing (in milliseconds). Default is 10000 ms.
-  - interval - The time interval during which the the service should be queried. Default is 120000 ms.  
+  - frequency - (Optional) The frequency with which to query the service for the status of the OCR processing - in milliseconds. Default is 10000 ms.
+  - interval - (Optional) The time interval during which the the service should be queried. Default is 120000 ms.
+  - format - (Optional) Specifies the desired output format (hocr or json). By default, the OCRed text is returned   
 - callback(err, content) - returns the OCRed content in `content`
 
 Sends a file to the service to be OCRed and then returns the OCRed content. This combines the ocr and fetch methods into a single method. 
 
-With the default frequency and interval, the service will be queried for the OCR content every 10 seconds for 2 minutes.
+With the default frequency and interval the service will be queried for the OCR content until it is successfully returned, or every 10 seconds for a maximum of 2 minutes.
 
 ### #ocr(source, [options], callback)
 
@@ -107,6 +111,8 @@ Sends a file to the service to be OCRed. The service then returns a sessionId to
 ### #fetch(sessionId, callback)
 
 - sessionId - The sessionId used to identify the request (returned by the ocr method)
+- options
+  - format - Format of returned content (hocr or json). By Default, the OCRed text is returned
 - callback(err, status, content) - returns the OCRed text. `status` indicates the status of the OCR processing (_In Progress_, _Success_, or _Failed_). `content` contains the OCRed text if the `status` is _Success_ (it is otherwise undefined). 
 
 Uses a sessionId to query the service for the status of a request, and returns the OCRed text when the processing is complete.
