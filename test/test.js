@@ -57,11 +57,8 @@ describe('Digitize', function() {
 					message: 'Your request has been queued',
 					sessionId: '1111aaaa2222bbbb'
 				})
-				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
-				.reply(200, {
-					'status': "Success",
-					'content': "OCRed text"
-				});
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb&format=')
+				.reply(200, "OCRed text");
 
 			myDigitize.fullOCR(file_valid, function(err, content) {
 				scope.done();
@@ -82,11 +79,8 @@ describe('Digitize', function() {
 					message: 'Your request has been queued',
 					sessionId: '1111aaaa2222bbbb'
 				})
-				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
-				.reply(200, {
-					'status': "Success",
-					'content': "OCRed text"
-				});
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb&format=')
+				.reply(200, "OCRed text");
 
 			var stream_valid = fs.createReadStream(file_valid);
 
@@ -133,13 +127,17 @@ describe('Digitize', function() {
 					message: 'Your request has been queued',
 					sessionId: '1111aaaa2222bbbb'
 				})
-				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb&format=')
 				.reply(200, {
-					'status': "In Progress"
+					status: 'In Progress'
+				}, {
+					'content-type': 'application/json; charset=utf-8'
 				})
-				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb&format=')
 				.reply(200, {
-					'status': "In Progress"
+					status: 'In Progress'
+				}, {
+					'content-type': 'application/json; charset=utf-8'
 				});
 
 			var fastOptions = {
@@ -152,7 +150,7 @@ describe('Digitize', function() {
 
 				should.exist(err);
 
-				err.message.should.equal('OCRing was not successful');
+				err.message.should.equal('Task did not finish before the interval expired');
 
 				cb();
 			});
@@ -210,7 +208,7 @@ describe('Digitize', function() {
 				should.exist(err);
 
 				err.should.be.an['instanceof'](Error);
-				err.message.toLowerCase().should.equal('file path does not exist');
+				err.message.should.equal('File path does not exist');
 
 				cb();
 			});
@@ -221,7 +219,7 @@ describe('Digitize', function() {
 				should.exist(err);
 
 				err.should.be.an['instanceof'](Error);
-				err.message.toLowerCase().should.equal('cannot open file. file is empty');
+				err.message.should.equal('Cannot open file. File is empty');
 
 				cb();
 			});
@@ -271,7 +269,7 @@ describe('Digitize', function() {
 				should.exist(err);
 
 				err.should.be.an['instanceof'](Error);
-				err.message.toLowerCase().should.equal('invalid stream');
+				err.message.should.equal('Invalid stream');
 
 				cb();
 			});
@@ -290,7 +288,7 @@ describe('Digitize', function() {
 				should.exist(err);
 
 				err.should.be.an['instanceof'](Error);
-				err.message.toLowerCase().should.equal('invalid api key');
+				err.message.should.equal('Invalid API Key');
 
 				cb();
 			});
@@ -302,11 +300,8 @@ describe('Digitize', function() {
 
 		it('should return the OCRed content for a valid sessionId', function(cb) {
 			var scope = nock('https://digitize.io')
-				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb')
-				.reply(200, {
-					'status': "Success",
-					'content': "OCRed text"
-				});
+				.get('/api/ocr?apiKey=123456789&sessionId=1111aaaa2222bbbb&format=')
+				.reply(200, "OCRed text");
 
 			myDigitize.fetch('1111aaaa2222bbbb', function(err, status, content) {
 				scope.done();
@@ -324,10 +319,12 @@ describe('Digitize', function() {
 
 		it('should return an error for an invalid sessionId', function(cb) {
 			var scope = nock('https://digitize.io')
-				.get('/api/ocr?apiKey=123456789&sessionId=1')
+				.get('/api/ocr?apiKey=123456789&sessionId=1&format=')
 				.reply(404, {
 					status: 'Failed',
 					message: 'No such session'
+				}, {
+					'content-type': 'application/json; charset=utf-8'
 				});
 
 			myDigitize.fetch('1', function(err) {
@@ -336,7 +333,7 @@ describe('Digitize', function() {
 				should.exist(err);
 
 				err.should.be.an['instanceof'](Error);
-				err.message.toLowerCase().should.equal('no such session');
+				err.message.should.equal('No such session');
 
 				cb();
 			});
@@ -347,7 +344,7 @@ describe('Digitize', function() {
 				should.exist(err);
 
 				err.should.be.an['instanceof'](Error);
-				err.message.toLowerCase().should.equal('no sessionid');
+				err.message.should.equal('No sessionId');
 
 				cb();
 			});
