@@ -1,5 +1,6 @@
 // node modules
 var fs = require('fs'),
+	path = require('path'),
 
 // npm modules
 	nock = require('nock'),
@@ -9,8 +10,8 @@ var fs = require('fs'),
 	Digitize = require('./../lib/digitize');
 
 
-var file_valid = './resources/test_files/basic.tif',
-	file_empty = './resources/test_files/empty.tif',
+var file_valid = path.resolve(__dirname, 'basic.tif'),
+	file_empty = path.resolve(__dirname, 'empty.tif'),
 	file_invalid = '/not/a/real/filepath.tif';
 
 var myDigitize = new Digitize({
